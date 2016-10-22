@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:scrollIndicators="none|top|bottom|left|right|start|end">
+
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/formMain"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:scrollbarAlwaysDrawHorizontalTrack="true"
+        android:scrollbarAlwaysDrawVerticalTrack="true"
+        android:background="@android:color/black">
+
+        <TextView
+            android:text="Capteurs de distance"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/tvDistance"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+            android:textStyle="normal|bold"
+            android:textAlignment="textStart"
+            android:fontFamily="sans-serif-medium"
+            android:textSize="26sp"
+            android:background="@android:color/holo_blue_dark"
+            android:textColor="@android:color/background_light" />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:text="Epaisseur voile :"
+                android:layout_height="wrap_content"
+                android:id="@+id/tvDistH"
+                android:textAppearance="@style/TextAppearance.AppCompat"
+                android:textSize="28sp"
+                android:textColor="@android:color/background_light"
+                android:layout_width="wrap_content"
+                android:textAlignment="textStart"
+                android:elevation="0dp"
+                android:freezesText="false"
+                android:layout_weight="0.04" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tvDistHVal"
+                android:layout_weight="1"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:textSize="60sp"
+                android:textColor="@android:color/holo_green_dark"
+                android:autoText="false"
+                android:gravity="right"
+                tools:ignore="TextViewEdits"
+                android:text="0" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tvDHMeasure"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:textSize="40sp"
+                android:textColor="@android:color/holo_green_dark"
+                android:gravity="right"
+                android:textAlignment="textEnd"
+                android:text="cm"
+                android:layout_weight="0.15" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:text="Hauteur voile :"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tvDistV"
+                android:textAppearance="@style/TextAppearance.AppCompat"
+                android:textSize="28sp"
+                android:textColor="@android:color/background_light"
+                android:textAlignment="textStart"
+                android:layout_weight="0.28" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tvDistVVal"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:textSize="60sp"
+                android:textColor="@android:color/holo_green_dark"
+                android:layout_weight="1.07"
+                android:gravity="right"
+                android:text="0" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tvDVMeasure"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:textSize="40sp"
+                android:textColor="@android:color/holo_green_dark"
+                android:gravity="right"
+                android:textAlignment="textEnd"
+                android:text="cm"
+                android:layout_weight="0.14" />
+
+        </LinearLayout>
+
+        <TextView
+            android:text="Inclinomètre"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/tvAlignment"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+            android:textStyle="normal|bold"
+            android:textAlignment="textStart"
+            android:fontFamily="sans-serif-medium"
+            android:textSize="26sp"
+            android:textColor="@android:color/background_light"
+            android:background="@android:color/holo_blue_dark" />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:text="Aplomb :"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tvAligH"
+                android:textAppearance="@style/TextAppearance.AppCompat"
+                android:textSize="28sp"
+                android:textColor="@android:color/background_light"
+                android:textAlignment="textStart"
+                android:layout_weight="0.06" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tvAligHVal"
+                android:layout_weight="1"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:textSize="60sp"
+                android:textColor="@android:color/holo_green_dark"
+                android:textAllCaps="false"
+                android:gravity="right"
+                android:text="0" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tvAHMeasure"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:textSize="60sp"
+                android:textColor="@android:color/holo_green_dark"
+                android:gravity="right"
+                android:textAlignment="center"
+                android:text="°"
+                android:layout_weight="0.06" />
+
+            <Button
+                android:id="@+id/btnAligHCheck"
+                android:background="@drawable/ic_checkon"
+                android:elevation="0dp"
+                android:layout_weight="0.02"
+                android:layout_width="38dp"
+                android:gravity="bottom"
+                android:layout_height="40dp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:text="Niveau :"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tvAligV"
+                android:textAppearance="@style/TextAppearance.AppCompat"
+                android:textSize="28sp"
+                android:textColor="@android:color/background_light"
+                android:textAlignment="textStart"
+                android:layout_weight="0.06" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tvAligVVAl"
+                android:layout_weight="1"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:textSize="60sp"
+                android:textColor="@android:color/holo_green_dark"
+                android:textAlignment="textEnd"
+                android:textAllCaps="false"
+                android:gravity="right"
+                android:text="0" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tvAVMeasure"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:textSize="60sp"
+                android:textColor="@android:color/holo_green_dark"
+                android:gravity="right"
+                android:textAlignment="center"
+                android:text="°"
+                android:layout_weight="0.06" />
+
+            <Button
+                android:id="@+id/btnAligVCheck"
+                android:elevation="0dp"
+                android:background="@mipmap/ic_checkon"
+                android:layout_weight="0.02"
+                android:layout_width="38dp"
+                android:gravity="bottom"
+                android:layout_height="40dp" />
+        </LinearLayout>
+
+        <TextView
+            android:text="Capteur de pression"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/tvPressure"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+            android:fontFamily="sans-serif-medium"
+            android:textSize="26sp"
+            android:textStyle="normal|bold"
+            android:textAlignment="viewStart"
+            android:background="@android:color/holo_blue_dark"
+            android:textColor="@android:color/background_light" />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.00">
+
+            <TextView
+                android:text="P :"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tvPress"
+                android:textAppearance="@style/TextAppearance.AppCompat"
+                android:textSize="28sp"
+                android:textColor="@android:color/background_light"
+                android:textAlignment="textStart"
+                android:layout_weight="0.22" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tvPressVal"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:textSize="60sp"
+                android:textColor="@android:color/holo_green_dark"
+                android:layout_weight="1.07"
+                android:gravity="right"
+                android:textAlignment="textEnd"
+                android:text="0" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tvPressMeasure"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:textSize="40sp"
+                android:textColor="@android:color/holo_green_dark"
+                android:gravity="right"
+                android:textAlignment="textEnd"
+                android:text="T"
+                android:layout_weight="0.14" />
+
+        </LinearLayout>
+
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/chart1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/seekBar1"
+            android:layout_alignParentEnd="true" />
+
+    </LinearLayout>
+
+</RelativeLayout>
