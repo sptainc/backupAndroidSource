@@ -50,9 +50,9 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -66,8 +66,6 @@ import static com.example.tainc.sateco_1.SatecoComponent.IP_SERVER_TCPCLIENT;
 import static com.example.tainc.sateco_1.SatecoComponent.PRESSURE_KEY;
 import static com.example.tainc.sateco_1.SatecoComponent.SOCKET_CLIENT_PORT;
 import static com.example.tainc.sateco_1.SatecoComponent.SPLIT_STRING;
-import static com.example.tainc.sateco_1.SatecoComponent.UDP_CLIENT_PORT;
-import static com.example.tainc.sateco_1.SatecoComponent.UDP_SERVER_PORT;
 import static com.example.tainc.sateco_1.SatecoComponent.WIFI_PASSWORD;
 import static com.example.tainc.sateco_1.SatecoComponent.WIFI_SSID;
 
@@ -96,7 +94,6 @@ public class LineChartTime extends DemoBase {
 
     private byte[] receiveData = new byte[1024];
     private byte[] send_data = new byte[1024];
-    private udpReadThread mtcpReadThread;
     private String str = "Hello ! ";
 //    public boolean connectOk;
 
@@ -137,20 +134,7 @@ public class LineChartTime extends DemoBase {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_linechart_time);
 
-//        handlerProgress = new Handler() {
-//            @Override
-//            public void handleMessage(Message msg) {
-//                super.handleMessage(msg);
-//                progressDoalog.incrementProgressBy(10);
-//            }
-//        };
-
         progressDialog = new ProgressDialog(this);
-//        progressDoalog.setMax(500);
-//        progressDoalog.setMessage("Its loading....");
-//        progressDoalog.setTitle("ProgressDialog bar example");
-//        progressDoalog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-//        progressDoalog.show();
         progressDialog = progressDialog.show(this, "Attendez, s' il vous plaît!", "De liaison", true);
 
         progressThread = new Thread(new Runnable() {
@@ -160,10 +144,8 @@ public class LineChartTime extends DemoBase {
                     while (counterTimeAppStart <= 4) {
                         Thread.sleep(1000);
                         counterTimeAppStart++;
-//                        handlerProgress.sendMessage(handlerProgress.obtainMessage());
                         if (counterTimeAppStart == 4) {
                             progressDialog.dismiss();
-//                            handlerProgress.removeCallbacksAndMessages(null);
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
@@ -172,9 +154,8 @@ public class LineChartTime extends DemoBase {
                                 }
 
                             });
-                            Log.d("Continue", "not dismiss");
                         }
-                    }
+                    }   
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -296,7 +277,7 @@ public class LineChartTime extends DemoBase {
         leftAxis.setDrawGridLines(true);
         leftAxis.setGranularityEnabled(true);
         leftAxis.setAxisMinimum(0f);
-//        leftAxis.setAxisMaximum(32000f);
+        leftAxis.setAxisMaximum(32f);
         leftAxis.setYOffset(-9f);
         leftAxis.setTextColor(Color.rgb(255, 192, 56));
 
@@ -439,17 +420,41 @@ public class LineChartTime extends DemoBase {
 
     private String formatDataChart(float data) {
         int valueInt = (int) data;
+        int second = 0;
+        int minute = 0;
+        int hours = 0;
 
-        String valueStr = String.format("%02d", valueInt);
+        hours = valueInt / 3600;
+        minute = valueInt % 3600 / 60;
+        second = valueInt % 3600 % 60;
+
+        String result =  String.format("%02d", second);
+        result = String.format("%02d", hours) + ":" + String.format("%02d", minute) + ":" + String.format("%02d", second) ;
         //00:00:00
-        String result = "00:00:" + valueStr;
-        if (data > 60) {
-            if (data > 6000) {
-                result = valueStr;
-            } else {
-                result = "00:" + valueStr;
-            }
-        }
+//        String result = "00:00:" + valueStr;
+//        if (valueInt >= 60) {
+//            if (valueInt >= 3600) {
+//                hours = valueInt / 3600;
+//                second = valueInt - 3600;
+//                if (second >= 60){
+//                    second = valueInt - 3600 - 60;
+//                    minute = second / 60;
+//                }
+//
+//                String hoursStr = String.format("%02d", hours);
+//                String minuteStr = String.format("%02d", minute);
+//                String secondStr = String.format("%02d", second);
+//
+//                result = hoursStr + ":" + minuteStr + ":" + secondStr ;
+//            } else {
+//                second = valueInt - 60;
+//                minute = second / 60;
+//                String minuteStr = String.format("%02d", minute);
+//                String secondStr = String.format("%02d", second);
+//
+//                result = "00:" + minuteStr + ":" + secondStr;
+//            }
+//        }
         return result;
     }
 
@@ -475,7 +480,6 @@ public class LineChartTime extends DemoBase {
         LineData data = new LineData(set1);
         data.setValueTextColor(Color.WHITE);
         data.setValueTextSize(9f);
-
         // set data
         mChart.setData(data);
         mChart.invalidate();
@@ -521,6 +525,10 @@ public class LineChartTime extends DemoBase {
         }
     }
 
+    /**********************************************************************************************
+     * TCP receive data
+     *********************************************************************************************/
+
     private void loadTCP(){
         if (Build.VERSION.SDK_INT > 9) {
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
@@ -533,7 +541,7 @@ public class LineChartTime extends DemoBase {
             AlertDialog.Builder erCon = new AlertDialog.Builder(this);
             erCon.setTitle("Erreur de connexion");
             erCon.setMessage(" Erreur de connexion avec l'équipement d'acquisition de données \n " +
-                    "Connectez wifi: \"SATECODAQ\" (mot de passe: \"dfm1610!\") !");
+                    "Connectez wifi: \"" + WIFI_SSID + "\" (mot de passe: \"" + WIFI_PASSWORD +  "\") !");
             erCon.setPositiveButton("Ok",
                     new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
@@ -548,55 +556,16 @@ public class LineChartTime extends DemoBase {
             erCon.create().show();
         }
 
-        startTCP();
-    }
-
-    //    Start Udp and Tcp
-    private void loadUDPAndTCP() {
-        if (Build.VERSION.SDK_INT > 9) {
-            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-            StrictMode.setThreadPolicy(policy);
-        }
-
-        boolean isConnectWifi = loadIpAddress();
-        if (!isConnectWifi) {
-            Toast.makeText(getBaseContext(), "error", Toast.LENGTH_SHORT).show();
-            AlertDialog.Builder erCon = new AlertDialog.Builder(this);
-            erCon.setTitle("Erreur de connexion");
-            erCon.setMessage(" Erreur de connexion avec l'équipement d'acquisition de données \n " +
-                    "Connectez wifi: \"SATECODAQ\" (mot de passe: \"dfm1610!\") !");
-            erCon.setPositiveButton("Ok",
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            try {
-                                connect2SSIDWifi();
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    });
-            erCon.setCancelable(true);
-            erCon.create().show();
-        }
-
-        startUdpAndTcp();
+        //Get and set ip server
+        //Open TCP Server
+        serverThread = new Thread(new ServerThread());
+        serverThread.start();
     }
 
     private void connect2SSIDWifi() throws Exception {
 
 
         WifiManager wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-        WifiInfo wifiInfo = wifi.getConnectionInfo();
-
-
-//        try{
-//            if(wifiInfo.getSSID().equals(publicClass.ssid)) return;
-//        }catch(Exception ex){}
-//        try {
-//            Thread.sleep(500);
-//        } catch (InterruptedException e) {}
-
-
         WifiConfiguration wc = new WifiConfiguration();
         wc.SSID = WIFI_SSID;
         wc.preSharedKey = WIFI_PASSWORD;
@@ -649,126 +618,25 @@ public class LineChartTime extends DemoBase {
         Log.d("my ip", MyIpAddress);
 
         if (ipAr.length > 2) {
+
 //            UdpClientAdr = (ipAr[0] + "." + ipAr[1] + "." + ipAr[2] + "." + "255").trim();
 //            UdpClientAdr = "255.255.255.255";
 //            Log.d("Udp Client Address : ", UdpClientAdr);
-            isConnectWifi = true;
+            isConnectWifi = checkSSID();
         }
 
         return isConnectWifi;
     }
 
-    private void startUdpAndTcp() {
-        try {
-            listenDataUdpServer();
+    private boolean checkSSID(){
+        WifiManager wifiManager = (WifiManager) getSystemService (Context.WIFI_SERVICE);
+        WifiInfo info = wifiManager.getConnectionInfo ();
+        String ssid  = info.getSSID().trim().toLowerCase();
 
-            Thread.sleep(1000);
-
-            Log.d("start listen ", "ok");
-            // listen udp data
-            this.mtcpReadThread = new udpReadThread();
-            this.mtcpReadThread.start();
-
-            sendDataUdpClient(false);
-        } catch (SocketException e) {
-            e.printStackTrace();
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        if (ssid.equals("\"" + WIFI_SSID.toLowerCase() + "\"")) {
+            return true;
         }
-    }
-
-    private void startTCP(){
-        //Get and set ip server
-        //Open TCP Server
-        serverThread = new Thread(new ServerThread());
-        serverThread.start();
-    }
-
-    private void initUdpClient() {
-        try {
-            UdpClient = new DatagramSocket(UDP_CLIENT_PORT);
-            UdpClient.setSoTimeout(10);
-            UdpClientIp = InetAddress.getByName(UdpClientAdr);
-
-            send_data = str.getBytes();
-            UdpClient.connect(UdpClientIp, UDP_CLIENT_PORT);
-            UdpClient.setSoTimeout(10);
-        } catch (SocketException e) {
-            e.printStackTrace();
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void sendDataUdpClient(boolean isConnected) {
-        if (!isConnected)
-            initUdpClient();
-        Log.d("sending data", str);
-        UdpClientPacket = new DatagramPacket(send_data, str.length(), UdpClientIp, UDP_CLIENT_PORT);
-        try {
-            UdpClient.send(UdpClientPacket);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void closeUdpClient() {
-        UdpClient.disconnect();
-    }
-
-    private void listenDataUdpServer() throws SocketException, UnknownHostException {
-        UdpServer = new DatagramSocket(UDP_SERVER_PORT);
-        UdpServerIp = InetAddress.getByName(UdpServerAdr);
-        UdpServerPacket = new DatagramPacket(receiveData, receiveData.length, UdpServerIp, UDP_SERVER_PORT);
-    }
-
-    private class udpReadThread extends Thread {
-        public udpReadThread() {
-            updateConversationHandler = new Handler();
-        }
-
-        public void run() {
-            super.run();
-            int runIndex = 0;
-            String udpMsg = "";
-
-            Log.d("listen data", "listening");
-            try {
-//                UdpServer.setSoTimeout(1000);
-                Log.d("start listen ", "listen ok");
-                UdpServer.receive(UdpServerPacket);
-                udpMsg = new String(receiveData, 0, UdpServerPacket.getLength());
-                Log.d("time out ", "is Time out ");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            Log.d("udp msg ", udpMsg);
-
-            while (!udpMsg.isEmpty() && !Thread.currentThread().isInterrupted()) {
-
-                if (!udpMsg.isEmpty() && runIndex == 0) {
-                    closeUdpClient();
-                    UdpServer.disconnect();
-                    UdpServer.close();
-
-                    //Get and set ip server
-                    IpServer = UdpServerPacket.getAddress().toString();
-                    IpServer = IpServer.substring(IpServer.lastIndexOf("/") + 1);
-
-                    Log.d("socket address ", IpServer);
-
-                    //Open TCP Server
-                    serverThread = new Thread(new ServerThread());
-                    serverThread.start();
-
-                    runIndex++;
-                }
-            }
-        }
+        return false;
     }
 
     @Nullable
@@ -776,19 +644,68 @@ public class LineChartTime extends DemoBase {
 
         Socket socketClient = new Socket();
         while (!isConnected) {
-            //                serverSocket = new ServerSocket(SERVERPORT);
             try {
+                Thread.sleep(1000);
                 socketClient = new Socket();
-                socketClient.connect(new InetSocketAddress(IP_SERVER_TCPCLIENT, SOCKET_CLIENT_PORT), 1000);
+                socketClient.connect(new InetSocketAddress(IP_SERVER_TCPCLIENT, SOCKET_CLIENT_PORT));
+                sendMsgTcp(socketClient ,"aip="+MyIpAddress);
                 isConnected = true;
             } catch (IOException e) {
                 isConnected = false;
+                e.printStackTrace();
+            } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
         if (isConnected)
             return socketClient;
         return null;
+    }
+
+//    private void disconnectTcpServer(Socket socketClient){
+//        try {
+//            socketClient.close();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
+
+//    private void checkConnect(Socket socketClient){
+//        try {
+//            socketClient.connect(new InetSocketAddress(IP_SERVER_TCPCLIENT, SOCKET_CLIENT_PORT));
+//            sendMsgTcp(socketClient ,"");
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
+
+    @android.support.annotation.Nullable
+    private Socket startSocketServer(ServerSocket serverSocket){
+        try {
+
+            serverSocket = new ServerSocket(SatecoComponent.SOCKET_SERVER_PORT);
+            Socket socket = serverSocket.accept();
+            isConnected = true;
+            return socket;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private void sendMsgTcp(Socket socket ,String msg)  {
+        try {
+            if(msg.isEmpty()){
+                msg = "aip="+MyIpAddress;
+            }
+            PrintWriter output;
+            output = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true);
+            output.println(msg);
+            Log.d("Message send to controller", msg);
+            output.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     class ServerThread extends Thread implements Runnable {
@@ -799,22 +716,10 @@ public class LineChartTime extends DemoBase {
         }
         public void run() {
             Socket socket = connectAndReconnectSocket();
-            if (isConnected) {
-                PrintWriter output;
-                try {
-                    output = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true);
-                    output.println("aip="+MyIpAddress);
-                    output.flush();
-                    Log.d("send tcp ", "aip="+MyIpAddress);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
 
+            Log.d("Connect to controller ", String.valueOf(isConnected));
+            if (isConnected && socket != null) {
 
-//            while (!Thread.currentThread().isInterrupted()) {
-
-//                try {
-//                    socket = serverSocket.accept();
                 if (commThread != null) {
                     commThread.interrupt();
                     commThread = null;
@@ -822,13 +727,27 @@ public class LineChartTime extends DemoBase {
 
                 commThread = new CommunicationThread(socket);
                 commThread.start();
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//            }
+
+                while(true){
+                    try {
+                        Thread.sleep(30000);
+                        sendMsgTcp(socket ,"");
+//                        checkConnect(socket);
+//                        Log.d("socket is bound ", String.valueOf(socket.isBound()));
+//                        Log.d("socket is connected ", String.valueOf(socket.isConnected()));
+//                        Log.d("socket is closed ", String.valueOf(socket.isClosed()));
+//                        Log.d("socket is clo", String.valueOf(socket.isInputShutdown()));
+//                        disconnectTcpServer(socket);
+//                        Thread.sleep(10000);
+//                        socket = connectAndReconnectSocket();
+
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+
             }
         }
-
     }
 
     class CommunicationThread extends Thread implements Runnable {
@@ -837,15 +756,14 @@ public class LineChartTime extends DemoBase {
 
         private BufferedReader input;
 
-
         public CommunicationThread(Socket clientSocket)  {
 
             this.clientSocket = clientSocket;
 
-
             try {
                 this.input = new BufferedReader(new InputStreamReader(this.clientSocket.getInputStream()));
             } catch (IOException e) {
+
                 e.printStackTrace();
             }
         }
@@ -858,15 +776,15 @@ public class LineChartTime extends DemoBase {
                     updateConversationHandler.post(new updateUIThread(readings));
                     readings = input.readLine();
                 }
-                if (readings == null) {
-                    isConnected = false;
-                    if (serverThread != null) {
-                        serverThread.interrupt();
-                        serverThread = null;
-                    }
-                    serverThread = new Thread(new ServerThread());
-                    serverThread.start();
-                }
+//                if (readings == null) {
+//                    Log.d("Thread sleep ", "20000");
+//                    Thread.sleep(20000);
+//                    Log.d("Thread sleep ok", "20000");
+//                    isConnected = false;
+//                    Socket socket = connectAndReconnectSocket();
+//                    Log.d("isconnected re", String.valueOf(isConnected));
+//                    this.clientSocket = socket;
+//                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -893,7 +811,7 @@ public class LineChartTime extends DemoBase {
 
     //    Load data to form
     private void loadData(String msg) {
-        Log.d("msg : ", msg);
+        Log.d("Data received from controller ", msg);
         if (msg.contains(" ")) {
             String[] msgList = msg.split(SPLIT_STRING);
 
@@ -905,16 +823,16 @@ public class LineChartTime extends DemoBase {
             switch (msgKey.toLowerCase()) {
                 case DISTANCE_H_KEY:
                     try {
-                        Integer msgDataInt = Integer.parseInt(msgValue);
-                        this.tvDistHValue.setText(String.valueOf(msgDataInt));
+//                        Integer msgDataInt = Integer.parseInt(msgValue);
+                        this.tvDistHValue.setText(msgValue);
                     } catch (NumberFormatException e) {
                         e.printStackTrace();
                     }
                     break;
                 case DISTANCE_V_KEY:
                     try {
-                        Integer msgDataInt = Integer.parseInt(msgValue);
-                        tvDistVValue.setText(String.valueOf(msgDataInt));
+//                        Integer msgDataInt = Integer.parseInt(msgValue);
+                        tvDistVValue.setText(msgValue);
                     } catch (NumberFormatException e) {
                         e.printStackTrace();
                     }
@@ -956,16 +874,21 @@ public class LineChartTime extends DemoBase {
 //    End load data to form
 
     private void checkAvaliableAlig(Double value, String msgKey) {
-        Button btnCheck = null;
-        if (msgKey.equals(ALIGNMENT_V_KEY)) {
-            btnCheck = btnAligVCheck;
-        } else {
-            btnCheck = btnAligHCheck;
+
+        if(msgKey.equals(ALIGNMENT_V_KEY)){
+            if (Double.valueOf(value) <= 0.1 && Double.valueOf(value) >= -0.1 ) {
+                btnAligVCheck.setBackgroundResource(R.drawable.ic_checkon);
+            }else {
+                btnAligVCheck.setBackgroundResource(R.drawable.ic_checkoff);
+            }
         }
-        if (Double.valueOf(value) == 0) {
-            btnCheck.setBackgroundResource(R.drawable.ic_checkon);
-        } else {
-            btnCheck.setBackgroundResource(R.drawable.ic_checkoff);
+
+        if(msgKey.equals(ALIGNMENT_H_KEY)){
+            if (Double.valueOf(value) <= 0.1 && Double.valueOf(value) >= -0.1 ) {
+                btnAligHCheck.setBackgroundResource(R.drawable.ic_checkon);
+            }else {
+                btnAligHCheck.setBackgroundResource(R.drawable.ic_checkoff);
+            }
         }
     }
 

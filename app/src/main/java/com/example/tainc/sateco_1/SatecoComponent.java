@@ -13,10 +13,11 @@ interface SatecoComponent {
     public static final String SPLIT_STRING = "\\s+";
 
     public static final int SOCKET_CLIENT_PORT = 16103;
+    public static final int SOCKET_SERVER_PORT = 16103;
     public static final int UDP_CLIENT_PORT = 16102;
     public static final int UDP_SERVER_PORT = 16101;
 
-    public static final String IP_SERVER_TCPCLIENT = "192.168.1.4";
+    public static final String IP_SERVER_TCPCLIENT = "192.168.1.1";
     public static final String WIFI_SSID = "SATECODAQ";
     public static final String WIFI_PASSWORD = "dfm1610!";
 
